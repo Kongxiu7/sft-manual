@@ -77,7 +77,8 @@
       实测：正文最多 6 行 ≈ 157px，加上下留白 98px，-265 刚好装下。 */
  .pic img{max-width:100%;max-height:calc(100vh - 265px);
    max-height:calc(100dvh - 265px);width:auto;height:auto;border-radius:8px;
-   background:#fff;display:block;box-shadow:0 10px 30px rgba(0,0,0,.55);
+   /* ★ 不能是 #fff：图占满宽后高度被屏高限制，两边会露出白边（老板反馈过） */
+   background:#0b0f14;display:block;box-shadow:0 10px 30px rgba(0,0,0,.55);
    object-fit:contain}   /* 高度被屏高限制时按原比例缩，不拉变形 */
  .meta{flex:none;padding:10px 14px 0;text-align:center}
  .l1,.l2,.l3,.l4{font-size:17px;line-height:1.38;font-weight:600}
@@ -320,7 +321,7 @@
 <button class="nav l" id="pv" aria-label="上一张">‹</button>
 <button class="nav r" id="nx" aria-label="下一张">›</button>
 <div id="grp"></div>
-<div id="ver">v1.4</div>
+<div id="ver">v1.5</div>
 <div id="hint">左右滑看姿势 · 上下滑换地方 · ☰ 全部地点</div>
 
 <div id="mask"></div>
@@ -341,7 +342,7 @@
   <div class="hrow"><span class="hi">↕</span><div><b>上下滑</b>换地方</div></div>
   <div class="hrow"><span class="hi">01</span><div><b>数字</b>是这一站第几张</div></div>
   <button id="helpok">知道了</button>
-  <div class="hver">v1.4 · 2026-10-17</div>
+  <div class="hver">v1.5 · 2026-10-17</div>
 </div></div>
 
 <div id="zoom">
