@@ -195,6 +195,12 @@
    font:600 14px/1 inherit;cursor:pointer}
  .nvbar .nvt{flex:1;text-align:center;font-size:13px;color:#94a3b8;
    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .nvbar .nvtogo{flex:none;color:#fca5a5;font-size:13px;font-weight:600;
+   text-decoration:none;padding:7px 10px;border-radius:999px;
+   background:rgba(239,68,68,.14);border:1px solid rgba(248,113,113,.45)}
+ #nvcopy{display:block;margin:12px 0 0;border:1px solid rgba(255,255,255,.18);
+   background:rgba(255,255,255,.06);color:#cbd5e1;border-radius:999px;
+   padding:8px 14px;font:500 13px/1 inherit;cursor:pointer}
  .nvwrap{max-width:640px;margin:0 auto;padding:18px 16px 48px;background:#000}
  .nvh1{font-size:20px;font-weight:800;line-height:1.35}
  .nvmeta{margin-top:6px;font-size:12.5px;color:#94a3b8}
@@ -321,7 +327,7 @@
 <button class="nav l" id="pv" aria-label="上一张">‹</button>
 <button class="nav r" id="nx" aria-label="下一张">›</button>
 <div id="grp"></div>
-<div id="ver">v1.5</div>
+<div id="ver">v1.6</div>
 <div id="hint">左右滑看姿势 · 上下滑换地方 · ☰ 全部地点</div>
 
 <div id="mask"></div>
@@ -342,7 +348,7 @@
   <div class="hrow"><span class="hi">↕</span><div><b>上下滑</b>换地方</div></div>
   <div class="hrow"><span class="hi">01</span><div><b>数字</b>是这一站第几张</div></div>
   <button id="helpok">知道了</button>
-  <div class="hver">v1.5 · 2026-10-17</div>
+  <div class="hver">v1.6 · 2026-10-17</div>
 </div></div>
 
 <div id="zoom">
@@ -355,12 +361,14 @@
   <div class="nvbar">
     <button id="nvclose">← 返回</button>
     <span class="nvt">锦鲤原文</span>
+    <a class="nvtogo" id="nvtogo" href="#" target="_blank" rel="noopener">去小红书 →</a>
   </div>
   <div class="nvwrap">
     <div class="nvh1" id="nvt"></div>
     <div class="nvmeta" id="nvm"></div>
+    <button id="nvcopy">复制她的笔记链接</button>
     <img class="nvcover" id="nvi" alt="">
-    <div class="nvsub">灰豚只存封面；整套图点最下面「去小红书看整套图」</div>
+    <div class="nvsub">灰豚只存封面；点右上角「去小红书」看她的整套图</div>
     <div class="nvtext" id="nvx"></div>
     <div class="nvhint" id="nvh" style="display:none"></div>
     <a class="nvgo" id="nvg" href="#" target="_blank" rel="noopener">去小红书看整套图 →</a>
@@ -902,9 +910,11 @@ zoomEl.addEventListener('pointercancel', function(e){ delete zPts[e.pointerId]; 
 
 /* ---------- 锦鲤原文：正文本地存着，手册内直接看 ---------- */
 var noteEl = document.getElementById('note');
+var curNote = null;
 function openNote(rk){
   var n = NOTES[rk];
   if (!n) return;
+  curNote = rk;
   document.getElementById('nvt').textContent = n.t || '未命名';
   var meta = [];
   if (n.dt) meta.push(n.dt);
@@ -923,11 +933,44 @@ function openNote(rk){
     hint.textContent = '灰豚没收录这篇的正文（视频或未设置标题的笔记），可以点下面去小红书看整套。';
   } else { hint.style.display = 'none'; }
   var go = document.getElementById('nvg');
-  if (n.u){ go.href = n.u; go.style.display = ''; }
-  else { go.removeAttribute('href'); go.style.display = 'none'; }
+  var top = document.getElementById('nvtogo');
+  if (n.u){
+    go.href = n.u; go.style.display = '';
+    top.href = n.u; top.style.display = '';
+    top.textContent = (n.u.indexOf('xhsdiscover://') === 0) ? '打开小红书 App →' : '去小红书 →';
+  } else {
+    go.removeAttribute('href'); go.style.display = 'none';
+    top.removeAttribute('href'); top.style.display = 'none';
+  }
+  var cp = document.getElementById('nvcopy');
+  cp.style.display = n.u ? '' : 'none';
+  cp.textContent = '复制她的笔记链接';
   noteEl.classList.add('on');
   noteEl.scrollTop = 0;
 }
+function copyText(t){
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    return navigator.clipboard.writeText(t)['catch'](function(){ fallbackCopy(t); });
+  }
+  fallbackCopy(t);
+  return Promise.resolve();
+}
+function fallbackCopy(t){
+  var ta = document.createElement('textarea');
+  ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } catch (e) {}
+  document.body.removeChild(ta);
+}
+document.getElementById('nvcopy').onclick = function(){
+  var n = NOTES[curNote];
+  if (!n || !n.u) return;
+  var b = this;
+  copyText(n.u).then(function(){
+    b.textContent = '已复制';
+    setTimeout(function(){ b.textContent = '复制她的笔记链接'; }, 1600);
+  });
+};
 function closeNote(){ noteEl.classList.remove('on'); }
 document.getElementById('nvclose').onclick = closeNote;
 document.addEventListener('keydown', function(e){
