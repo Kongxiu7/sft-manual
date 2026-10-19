@@ -202,6 +202,9 @@
  #nvcopy{display:block;margin:12px 0 0;border:1px solid rgba(255,255,255,.18);
    background:rgba(255,255,255,.06);color:#cbd5e1;border-radius:999px;
    padding:8px 14px;font:500 13px/1 inherit;cursor:pointer}
+ .nvtip{margin:10px 0 0;padding:10px 12px;border-radius:10px;
+   background:rgba(250,204,21,.08);border:1px solid rgba(250,204,21,.25);
+   color:#fcd34d;font-size:12.5px;line-height:1.55}
  .nvwrap{max-width:640px;margin:0 auto;padding:18px 16px 48px;background:#000}
  .nvh1{font-size:20px;font-weight:800;line-height:1.35}
  .nvmeta{margin-top:6px;font-size:12.5px;color:#94a3b8}
@@ -328,7 +331,7 @@
 <button class="nav l" id="pv" aria-label="上一张">‹</button>
 <button class="nav r" id="nx" aria-label="下一张">›</button>
 <div id="grp"></div>
-<div id="ver">v1.7</div>
+<div id="ver">v1.8</div>
 <div id="hint">左右滑看姿势 · 上下滑换地方 · ☰ 全部地点</div>
 
 <div id="mask"></div>
@@ -345,11 +348,12 @@
   <div class="hrow"><span class="hi">＋</span><div><b>点中间</b>放大看，双指还能再放大</div></div>
   <div class="hrow"><span class="hi">↗</span><div><b>红色按钮</b>：手册里直接看锦鲤正文，不用跳出去</div></div>
   <div class="hrow"><span class="hi">📖</span><div><b>原文页里</b>还能点「去小红书」看整套图</div></div>
+  <div class="hrow"><span class="hi">!</span><div><b>微信里打不开</b>是正常的：点「复制她的笔记链接」，到手机浏览器或小红书 App 打开；显示「打开小红书 App」的只有装了 App 才能开</div></div>
   <div class="hrow"><span class="hi">↔</span><div><b>左右滑</b>换姿势，末尾绕回第一张</div></div>
   <div class="hrow"><span class="hi">↕</span><div><b>上下滑</b>换地方</div></div>
   <div class="hrow"><span class="hi">01</span><div><b>数字</b>是这一站第几张</div></div>
   <button id="helpok">知道了</button>
-  <div class="hver">v1.7 · 2026-10-17</div>
+  <div class="hver">v1.8 · 2026-10-19</div>
 </div></div>
 
 <div id="zoom">
@@ -368,11 +372,13 @@
     <div class="nvh1" id="nvt"></div>
     <div class="nvmeta" id="nvm"></div>
     <button id="nvcopy">复制她的笔记链接</button>
+    <div class="nvtip" id="nvtip">微信里可能打不开是正常的：点「复制她的笔记链接」，到手机浏览器或小红书 App 打开。</div>
     <img class="nvcover" id="nvi" alt="">
     <div class="nvsub">灰豚只存封面；点右上角「去小红书」看她的整套图</div>
     <div class="nvtext" id="nvx"></div>
     <div class="nvhint" id="nvh" style="display:none"></div>
     <a class="nvgo" id="nvg" href="#" target="_blank" rel="noopener">去小红书看整套图 →</a>
+    <a class="nvgo" id="nvweb" href="#" target="_blank" rel="noopener" style="display:none">网页打开试试（可能需登录）→</a>
   </div>
 </div>
 
@@ -960,9 +966,29 @@ function openNote(rk){
     go.removeAttribute('href'); go.style.display = 'none';
     top.removeAttribute('href'); top.style.display = 'none';
   }
+  var web = document.getElementById('nvweb');
+  if (web){
+    if (n.u && n.u.indexOf('xhsdiscover://') === 0){
+      var nid = n.u.split('/').pop();
+      web.href = 'https://www.xiaohongshu.com/explore/' + nid;
+      web.style.display = '';
+    } else {
+      web.style.display = 'none';
+    }
+  }
   var cp = document.getElementById('nvcopy');
   cp.style.display = n.u ? '' : 'none';
   cp.textContent = '复制她的笔记链接';
+  var tip = document.getElementById('nvtip');
+  if (tip){
+    if (n.u && n.u.indexOf('xhsdiscover://') === 0){
+      tip.textContent = '这条是「仅 App」链接：微信/电脑点不开，只有手机装了小红书才能打开。点「复制她的笔记链接」，粘贴到小红书里打开。';
+    } else if (n.u){
+      tip.textContent = '微信里可能打不开是正常的：点「复制她的笔记链接」，到手机浏览器或小红书 App 打开。';
+    } else {
+      tip.textContent = '这条没有可打开的链接，可以先按封面/标题去小红书搜。';
+    }
+  }
   noteEl.classList.add('on');
   noteEl.scrollTop = 0;
 }
